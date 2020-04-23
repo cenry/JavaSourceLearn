@@ -2,7 +2,7 @@
 
 本项目是我的Java源码学习项目，我计划以源码注解+博客总结的方式学习Java中一些重要的类库，希望也能帮助到同样在学习Java的同学。
 
-我的博客站点：<a href="https://blog.andycen.com" target="_blank">blog.andycen.com</a>
+我的博客站点：https://blog.andycen.com
 
 源码拷贝方式参考的是这个视频：https://www.bilibili.com/video/BV1V7411U78L
 
@@ -27,6 +27,6 @@ jdk版本：1.8.0_201
 
 #### HashMap
 
-<a href="https://github.com/cenry/JavaSourceLearn/blob/master/src/com/andycen/source/java/util/HashMap.java" target="_blank">源码解析</a>
+<a href="https://github.com/cenry/JavaSourceLearn/blob/master/src/com/andycen/source/java/util/HashMap.java">源码解析</a>
 
-<a href="https://github.com/cenry/JavaSourceLearn/documents/HashMap.md" target="_blank">文档翻译与附录</a>
+<a href="https://github.com/cenry/JavaSourceLearn/blob/master/documents/HashMap.md">文档翻译与附录</a>
