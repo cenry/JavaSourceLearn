@@ -506,7 +506,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                      oldCap >= DEFAULT_INITIAL_CAPACITY)
                 newThr = oldThr << 1; // 新的扩容门槛变为原来的2倍
         }
-        else if (oldThr > 0) // 原来的容量为0才会到这里，代表本次是初始化，且threshold是1，为什么是一可以看一下构造器HashMap(int)末尾
+        else if (oldThr > 0) // 初始后threshold的值大于0。如果初始化时指定的容量为0，则threshold是1，为什么是1可以看一下构造器HashMap(int)末尾
             newCap = oldThr; // 直接使用预先放入的目标容量
         else { // 到这一步说明初始容量为0并且threshold为0，比较几个构造器后，可以断定使用了无参构造器，故负载因子直接用默认值。
             newCap = DEFAULT_INITIAL_CAPACITY;
