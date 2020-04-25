@@ -1911,7 +1911,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                              (q = ch.find(h, k, kc)) != null))
                             return q;  // 在遍历时找到了目标节点，将其返回，注意并没有改变value
                     }
-                    dir = tieBreakOrder(k, pk);  // 已经全树遍历过，没找到想找的节点，使用最终解决方案比出大小
+                    dir = tieBreakOrder(k, pk);  // 用hash和compareTo都无法比出大小，使用最终解决方案比出大小
                 }
 
                 TreeNode<K,V> xp = p; // 把p存放到xp里去，因为下一步p要指向其他节点了。
