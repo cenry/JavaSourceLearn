@@ -910,7 +910,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     }
 
     /**
-     * 如果原来map中就存在这个key，而且对应value不为null，就直接返回旧值。
+     * 如果原来map中原来就存在这个key，而且对应value不为null，就直接返回旧值。
      * 如果原来不存在，或虽然存在但value为null，则以key为入参执行mappingFunction方法，其返回值作为key对应的value更新或插入键值对，
      * 然后把这个value返回。
      *
