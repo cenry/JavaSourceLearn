@@ -515,14 +515,9 @@ public class HashMap<K,V> extends AbstractMap<K,V>
         if (newThr == 0) {
             // 到这里有两种可能：
             // 1. 上一个if进了第一个分支，但是oldCap太小或太大，没有执行newThr = oldThr << 1
-            // 2. 上一个if进的是第二个分支，可以断定这是初始化后第一次插入数据，且构造器必定指定了初始容量是0，此时newCap = oldThr = 1
+            // 2. 上一个if进的是第二个分支，同样也没对newThr做处理
             float ft = (float)newCap * loadFactor;
-            // 因为这两种可能都跳过了"newThr = oldThr << 1"，所以必须补充计算新的门槛。
             // 如果是因为oldCap太大进来的，这里newThr要确保不能超过Integer.MAX_VALUE，为什么newCap和ft都要判？因为负载因子可能大于1。
-            // 此外，oldCap太小的时候，门槛计算也放在这里，因为此时这两种算法"oldThr << 1"和"(float)newCap * loadFactor"不是等价的，
-            // 如果指定了初始容量是0，初次放入元素前会扩容，ft = 1 * 0.75 = 0.75，强转int后threshold = 0，于是放入首个元素后又会扩容，
-            // 这时newCap = oldCap << 1 = 2，oldThr = 0，没法用"oldThr << 1"计算，而"(float)newCap * loadFactor"总能计算出
-            // 合理的值。因此只有在oldCap >= DEFAULT_INITIAL_CAPACITY时新的门槛才会在上面计算。
             newThr = (newCap < MAXIMUM_CAPACITY && ft < (float)MAXIMUM_CAPACITY ?
                       (int)ft : Integer.MAX_VALUE);
         }
