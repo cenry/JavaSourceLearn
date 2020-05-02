@@ -669,7 +669,7 @@ public class Hashtable<K,V>
          */
         int h = 0;
         if (count == 0 || loadFactor < 0)
-            return h;  // Returns zero
+            return h;  // 返回0
 
         loadFactor = -loadFactor;  // 将loadFactor置反表示哈希值计算中
         Entry<?,?>[] tab = table;
