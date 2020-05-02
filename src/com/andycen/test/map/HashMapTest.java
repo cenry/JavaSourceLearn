@@ -1,7 +1,6 @@
 package com.andycen.test.map;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author cenruyi
@@ -9,6 +8,15 @@ import java.util.Map;
 public class HashMapTest {
 
     public static void main(String[] args) {
+        hashCalculateDeadLoop();
+    }
 
+    /**
+     * this method will lead to a dead loop
+     */
+    public static void hashCalculateDeadLoop() {
+        HashMap<String, HashMap> map = new HashMap<>();
+        map.put("map",map);
+        System.out.println(map.hashCode());
     }
 }

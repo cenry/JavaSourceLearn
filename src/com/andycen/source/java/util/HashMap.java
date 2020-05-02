@@ -1220,7 +1220,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
     private void writeObject(java.io.ObjectOutputStream s)
         throws IOException {
         int buckets = capacity();
-        s.defaultWriteObject(); // threshold、loadfactor没有transient修饰，会被自动写入流，其他一些隐藏的东西也被写入。
+        s.defaultWriteObject(); // threshold、loadFactor没有transient修饰，会被自动写入流，其他一些隐藏的东西也被写入。
         s.writeInt(buckets); // 写入当前的容量
         s.writeInt(size); // 写入当前的键值对数量
         internalWriteEntries(s); // 写入所有的key和value
@@ -1263,7 +1263,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
             threshold = ((cap < MAXIMUM_CAPACITY && ft < MAXIMUM_CAPACITY) ?
                          (int)ft : Integer.MAX_VALUE);
 
-            // 用Map.Entry[].class去获取流中的键值对数量，用这个类是因为它是作为Map中的元素最基础的类，能把树节点也计算到
+            // 用Map.Entry[].class做校验，用这个类是因为它是作为Map中的元素最基础的类，能把树节点也计算到
             SharedSecrets.getJavaOISAccess().checkArray(s, Map.Entry[].class, cap);
             @SuppressWarnings({"rawtypes","unchecked"})
             Node<K,V>[] tab = (Node<K,V>[])new Node[cap];
