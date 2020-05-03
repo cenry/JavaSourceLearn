@@ -31,123 +31,6 @@ import java.util.function.BiFunction;
 import java.io.IOException;
 
 /**
- * <p>Hash table and linked list implementation of the <tt>Map</tt> interface,
- * with predictable iteration order.  This implementation differs from
- * <tt>HashMap</tt> in that it maintains a doubly-linked list running through
- * all of its entries.  This linked list defines the iteration ordering,
- * which is normally the order in which keys were inserted into the map
- * (<i>insertion-order</i>).  Note that insertion order is not affected
- * if a key is <i>re-inserted</i> into the map.  (A key <tt>k</tt> is
- * reinserted into a map <tt>m</tt> if <tt>m.put(k, v)</tt> is invoked when
- * <tt>m.containsKey(k)</tt> would return <tt>true</tt> immediately prior to
- * the invocation.)
- *
- * <p>This implementation spares its clients from the unspecified, generally
- * chaotic ordering provided by {@link HashMap} (and {@link Hashtable}),
- * without incurring the increased cost associated with {@link TreeMap}.  It
- * can be used to produce a copy of a map that has the same order as the
- * original, regardless of the original map's implementation:
- * <pre>
- *     void foo(Map m) {
- *         Map copy = new LinkedHashMap(m);
- *         ...
- *     }
- * </pre>
- * This technique is particularly useful if a module takes a map on input,
- * copies it, and later returns results whose order is determined by that of
- * the copy.  (Clients generally appreciate having things returned in the same
- * order they were presented.)
- *
- * <p>A special {@link #LinkedHashMap(int,float,boolean) constructor} is
- * provided to create a linked hash map whose order of iteration is the order
- * in which its entries were last accessed, from least-recently accessed to
- * most-recently (<i>access-order</i>).  This kind of map is well-suited to
- * building LRU caches.  Invoking the {@code put}, {@code putIfAbsent},
- * {@code get}, {@code getOrDefault}, {@code compute}, {@code computeIfAbsent},
- * {@code computeIfPresent}, or {@code merge} methods results
- * in an access to the corresponding entry (assuming it exists after the
- * invocation completes). The {@code replace} methods only result in an access
- * of the entry if the value is replaced.  The {@code putAll} method generates one
- * entry access for each mapping in the specified map, in the order that
- * key-value mappings are provided by the specified map's entry set iterator.
- * <i>No other methods generate entry accesses.</i>  In particular, operations
- * on collection-views do <i>not</i> affect the order of iteration of the
- * backing map.
- *
- * <p>The {@link #removeEldestEntry(Map.Entry)} method may be overridden to
- * impose a policy for removing stale mappings automatically when new mappings
- * are added to the map.
- *
- * <p>This class provides all of the optional <tt>Map</tt> operations, and
- * permits null elements.  Like <tt>HashMap</tt>, it provides constant-time
- * performance for the basic operations (<tt>add</tt>, <tt>contains</tt> and
- * <tt>remove</tt>), assuming the hash function disperses elements
- * properly among the buckets.  Performance is likely to be just slightly
- * below that of <tt>HashMap</tt>, due to the added expense of maintaining the
- * linked list, with one exception: Iteration over the collection-views
- * of a <tt>LinkedHashMap</tt> requires time proportional to the <i>size</i>
- * of the map, regardless of its capacity.  Iteration over a <tt>HashMap</tt>
- * is likely to be more expensive, requiring time proportional to its
- * <i>capacity</i>.
- *
- * <p>A linked hash map has two parameters that affect its performance:
- * <i>initial capacity</i> and <i>load factor</i>.  They are defined precisely
- * as for <tt>HashMap</tt>.  Note, however, that the penalty for choosing an
- * excessively high value for initial capacity is less severe for this class
- * than for <tt>HashMap</tt>, as iteration times for this class are unaffected
- * by capacity.
- *
- * <p><strong>Note that this implementation is not synchronized.</strong>
- * If multiple threads access a linked hash map concurrently, and at least
- * one of the threads modifies the map structurally, it <em>must</em> be
- * synchronized externally.  This is typically accomplished by
- * synchronizing on some object that naturally encapsulates the map.
- *
- * If no such object exists, the map should be "wrapped" using the
- * {@link Collections#synchronizedMap Collections.synchronizedMap}
- * method.  This is best done at creation time, to prevent accidental
- * unsynchronized access to the map:<pre>
- *   Map m = Collections.synchronizedMap(new LinkedHashMap(...));</pre>
- *
- * A structural modification is any operation that adds or deletes one or more
- * mappings or, in the case of access-ordered linked hash maps, affects
- * iteration order.  In insertion-ordered linked hash maps, merely changing
- * the value associated with a key that is already contained in the map is not
- * a structural modification.  <strong>In access-ordered linked hash maps,
- * merely querying the map with <tt>get</tt> is a structural modification.
- * </strong>)
- *
- * <p>The iterators returned by the <tt>iterator</tt> method of the collections
- * returned by all of this class's collection view methods are
- * <em>fail-fast</em>: if the map is structurally modified at any time after
- * the iterator is created, in any way except through the iterator's own
- * <tt>remove</tt> method, the iterator will throw a {@link
- * ConcurrentModificationException}.  Thus, in the face of concurrent
- * modification, the iterator fails quickly and cleanly, rather than risking
- * arbitrary, non-deterministic behavior at an undetermined time in the future.
- *
- * <p>Note that the fail-fast behavior of an iterator cannot be guaranteed
- * as it is, generally speaking, impossible to make any hard guarantees in the
- * presence of unsynchronized concurrent modification.  Fail-fast iterators
- * throw <tt>ConcurrentModificationException</tt> on a best-effort basis.
- * Therefore, it would be wrong to write a program that depended on this
- * exception for its correctness:   <i>the fail-fast behavior of iterators
- * should be used only to detect bugs.</i>
- *
- * <p>The spliterators returned by the spliterator method of the collections
- * returned by all of this class's collection view methods are
- * <em><a href="Spliterator.html#binding">late-binding</a></em>,
- * <em>fail-fast</em>, and additionally report {@link Spliterator#ORDERED}.
- *
- * <p>This class is a member of the
- * <a href="{@docRoot}/../technotes/guides/collections/index.html">
- * Java Collections Framework</a>.
- *
- * @implNote
- * The spliterators returned by the spliterator method of the collections
- * returned by all of this class's collection view methods are created from
- * the iterators of the corresponding collections.
- *
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
  *
@@ -165,29 +48,8 @@ public class LinkedHashMap<K,V>
     implements Map<K,V>
 {
 
-    /*
-     * Implementation note.  A previous version of this class was
-     * internally structured a little differently. Because superclass
-     * HashMap now uses trees for some of its nodes, class
-     * LinkedHashMap.Entry is now treated as intermediary node class
-     * that can also be converted to tree form. The name of this
-     * class, LinkedHashMap.Entry, is confusing in several ways in its
-     * current context, but cannot be changed.  Otherwise, even though
-     * it is not exported outside this package, some existing source
-     * code is known to have relied on a symbol resolution corner case
-     * rule in calls to removeEldestEntry that suppressed compilation
-     * errors due to ambiguous usages. So, we keep the name to
-     * preserve unmodified compilability.
-     *
-     * The changes in node classes also require using two fields
-     * (head, tail) rather than a pointer to a header node to maintain
-     * the doubly-linked before/after list. This class also
-     * previously used a different style of callback methods upon
-     * access, insertion, and removal.
-     */
-
     /**
-     * HashMap.Node subclass for normal LinkedHashMap entries.
+     * HashMap.Node的子类，是LinkedHashMap的普通成员。
      */
     static class Entry<K,V> extends HashMap.Node<K,V> {
         Entry<K,V> before, after;
@@ -199,26 +61,25 @@ public class LinkedHashMap<K,V>
     private static final long serialVersionUID = 3801124242820219131L;
 
     /**
-     * The head (eldest) of the doubly linked list.
+     * 双向链表的头部（最早插入）
      */
     transient LinkedHashMap.Entry<K,V> head;
 
     /**
-     * The tail (youngest) of the doubly linked list.
+     * 双向链表的尾部（最新插入）
      */
     transient LinkedHashMap.Entry<K,V> tail;
 
     /**
-     * The iteration ordering method for this linked hash map: <tt>true</tt>
-     * for access-order, <tt>false</tt> for insertion-order.
+     * 迭代顺序的模式：true代表access-order(访问顺序)模式，false代表insertion-order(插入顺序)模式。
      *
-     * @serial
+     * @serial 序列化字段
      */
     final boolean accessOrder;
 
-    // internal utilities
+    // 内部公共方法
 
-    // link at the end of list
+    // 把给定的节点p挂在链表尾部
     private void linkNodeLast(LinkedHashMap.Entry<K,V> p) {
         LinkedHashMap.Entry<K,V> last = tail;
         tail = p;
@@ -230,7 +91,7 @@ public class LinkedHashMap<K,V>
         }
     }
 
-    // apply src's links to dst
+    // 把src的前后链接给dst
     private void transferLinks(LinkedHashMap.Entry<K,V> src,
                                LinkedHashMap.Entry<K,V> dst) {
         LinkedHashMap.Entry<K,V> b = dst.before = src.before;
@@ -245,7 +106,7 @@ public class LinkedHashMap<K,V>
             a.before = dst;
     }
 
-    // overrides of HashMap hook methods
+    // 重写HashMap的钩子方法
 
     void reinitialize() {
         super.reinitialize();
@@ -280,7 +141,7 @@ public class LinkedHashMap<K,V>
         return t;
     }
 
-    void afterNodeRemoval(Node<K,V> e) { // unlink
+    void afterNodeRemoval(Node<K,V> e) { // 删除节点后调整前后节点的after、before指针
         LinkedHashMap.Entry<K,V> p =
             (LinkedHashMap.Entry<K,V>)e, b = p.before, a = p.after;
         p.before = p.after = null;
@@ -294,7 +155,7 @@ public class LinkedHashMap<K,V>
             a.before = b;
     }
 
-    void afterNodeInsertion(boolean evict) { // possibly remove eldest
+    void afterNodeInsertion(boolean evict) { // 可能会删除最早插入的节点
         LinkedHashMap.Entry<K,V> first;
         if (evict && (first = head) != null && removeEldestEntry(first)) {
             K key = first.key;
@@ -302,7 +163,7 @@ public class LinkedHashMap<K,V>
         }
     }
 
-    void afterNodeAccess(Node<K,V> e) { // move node to last
+    void afterNodeAccess(Node<K,V> e) { // 如果是access-order模式，将最新访问的节点移动到链表尾部
         LinkedHashMap.Entry<K,V> last;
         if (accessOrder && (last = tail) != e) {
             LinkedHashMap.Entry<K,V> p =
@@ -327,6 +188,7 @@ public class LinkedHashMap<K,V>
         }
     }
 
+    // 从head开始沿着after指针遍历，比HashMap要方便
     void internalWriteEntries(java.io.ObjectOutputStream s) throws IOException {
         for (LinkedHashMap.Entry<K,V> e = head; e != null; e = e.after) {
             s.writeObject(e.key);
@@ -335,13 +197,11 @@ public class LinkedHashMap<K,V>
     }
 
     /**
-     * Constructs an empty insertion-ordered <tt>LinkedHashMap</tt> instance
-     * with the specified initial capacity and load factor.
+     * 使用指定的初始容量和负载因子构造一个空的insertion-ordered模式的LinkedHashMap实例
      *
-     * @param  initialCapacity the initial capacity
-     * @param  loadFactor      the load factor
-     * @throws IllegalArgumentException if the initial capacity is negative
-     *         or the load factor is nonpositive
+     * @param  initialCapacity 初始容量
+     * @param  loadFactor      负载因子
+     * @throws IllegalArgumentException 如果初始容量为负数或负载因子为非正数
      */
     public LinkedHashMap(int initialCapacity, float loadFactor) {
         super(initialCapacity, loadFactor);
@@ -349,11 +209,10 @@ public class LinkedHashMap<K,V>
     }
 
     /**
-     * Constructs an empty insertion-ordered <tt>LinkedHashMap</tt> instance
-     * with the specified initial capacity and a default load factor (0.75).
+     * 使用指定的初始容量和默认的负载因子(0.75)构造一个空的insertion-ordered模式的LinkedHashMap实例
      *
-     * @param  initialCapacity the initial capacity
-     * @throws IllegalArgumentException if the initial capacity is negative
+     * @param  initialCapacity 初始容量
+     * @throws IllegalArgumentException 如果初始容量为负数
      */
     public LinkedHashMap(int initialCapacity) {
         super(initialCapacity);
@@ -361,8 +220,7 @@ public class LinkedHashMap<K,V>
     }
 
     /**
-     * Constructs an empty insertion-ordered <tt>LinkedHashMap</tt> instance
-     * with the default initial capacity (16) and load factor (0.75).
+     * 使用默认初始容量(16)和默认的负载因子(0.75)构造一个空的insertion-ordered模式的LinkedHashMap实例
      */
     public LinkedHashMap() {
         super();
@@ -370,13 +228,11 @@ public class LinkedHashMap<K,V>
     }
 
     /**
-     * Constructs an insertion-ordered <tt>LinkedHashMap</tt> instance with
-     * the same mappings as the specified map.  The <tt>LinkedHashMap</tt>
-     * instance is created with a default load factor (0.75) and an initial
-     * capacity sufficient to hold the mappings in the specified map.
+     * 使用默认初始容量(16)和默认的负载因子(0.75)构造一个空的insertion-ordered模式的LinkedHashMap实例，
+     * 然后按照给定map的entrySet()得到的集合的顺序往新建的map中依次插入元素。
      *
-     * @param  m the map whose mappings are to be placed in this map
-     * @throws NullPointerException if the specified map is null
+     * @param  m 指定的map
+     * @throws NullPointerException 如果指定的map是null
      */
     public LinkedHashMap(Map<? extends K, ? extends V> m) {
         super();
@@ -385,15 +241,12 @@ public class LinkedHashMap<K,V>
     }
 
     /**
-     * Constructs an empty <tt>LinkedHashMap</tt> instance with the
-     * specified initial capacity, load factor and ordering mode.
+     * 按照给定的初始容量、负载因子和排序模式构造一个空的LinkedHashMap实例
      *
-     * @param  initialCapacity the initial capacity
-     * @param  loadFactor      the load factor
-     * @param  accessOrder     the ordering mode - <tt>true</tt> for
-     *         access-order, <tt>false</tt> for insertion-order
-     * @throws IllegalArgumentException if the initial capacity is negative
-     *         or the load factor is nonpositive
+     * @param  initialCapacity 初始容量
+     * @param  loadFactor      负载因子
+     * @param  accessOrder     排序模式 —— true代表access-order, false代表insertion-order
+     * @throws IllegalArgumentException 如果初始容量为负数或负载因子为非正数
      */
     public LinkedHashMap(int initialCapacity,
                          float loadFactor,
@@ -404,12 +257,7 @@ public class LinkedHashMap<K,V>
 
 
     /**
-     * Returns <tt>true</tt> if this map maps one or more keys to the
-     * specified value.
-     *
-     * @param value value whose presence in this map is to be tested
-     * @return <tt>true</tt> if this map maps one or more keys to the
-     *         specified value
+     * 判断是否包含指定的value，由于迭代方式改变所以重写
      */
     public boolean containsValue(Object value) {
         for (LinkedHashMap.Entry<K,V> e = head; e != null; e = e.after) {
@@ -421,19 +269,7 @@ public class LinkedHashMap<K,V>
     }
 
     /**
-     * Returns the value to which the specified key is mapped,
-     * or {@code null} if this map contains no mapping for the key.
-     *
-     * <p>More formally, if this map contains a mapping from a key
-     * {@code k} to a value {@code v} such that {@code (key==null ? k==null :
-     * key.equals(k))}, then this method returns {@code v}; otherwise
-     * it returns {@code null}.  (There can be at most one such mapping.)
-     *
-     * <p>A return value of {@code null} does not <i>necessarily</i>
-     * indicate that the map contains no mapping for the key; it's also
-     * possible that the map explicitly maps the key to {@code null}.
-     * The {@link #containsKey containsKey} operation may be used to
-     * distinguish these two cases.
+     * 如果是在access-order模式，则需要将这个最新访问的节点移动到链表尾部
      */
     public V get(Object key) {
         Node<K,V> e;
@@ -465,67 +301,33 @@ public class LinkedHashMap<K,V>
     }
 
     /**
-     * Returns <tt>true</tt> if this map should remove its eldest entry.
-     * This method is invoked by <tt>put</tt> and <tt>putAll</tt> after
-     * inserting a new entry into the map.  It provides the implementor
-     * with the opportunity to remove the eldest entry each time a new one
-     * is added.  This is useful if the map represents a cache: it allows
-     * the map to reduce memory consumption by deleting stale entries.
+     * 如果需要移除最早放入的那一项，则返回true。这个方法会在put、putAll放入一个新的条目时执行。它提供了在每次添加新条目时删除最老条目的机会。
+     * 在map被当作缓存使用时，这个方法非常有用，通过删除最不经常访问的那个条目，以达到减少内存占用的目的。
      *
-     * <p>Sample use: this override will allow the map to grow up to 100
-     * entries and then delete the eldest entry each time a new entry is
-     * added, maintaining a steady state of 100 entries.
-     * <pre>
-     *     private static final int MAX_ENTRIES = 100;
+     * 举例：这样重写方法可以让map中的条目达到100时删除最不常访问的那个条目，让条目数量维持在100。
+     * private static final int MAX_ENTRIES = 100;
+     * protected boolean removeEldestEntry(Map.Entry eldest) {
+     *    return size() > MAX_ENTRIES;
+     * }
      *
-     *     protected boolean removeEldestEntry(Map.Entry eldest) {
-     *        return size() &gt; MAX_ENTRIES;
-     *     }
-     * </pre>
+     * 此方法内部不会以任何方式修改映射，至于传入的这个元素要不要删除，是在此方法返回true或false后map自己去做的。
+     * 如果一定要在此方法中直接修改map的结构，那么返回值必须为false（代表map不用再被修改了）。
+     * 如果在此方法中直接修改了map结构，然后又返回true，可能会导致一些意想不到的结果。
      *
-     * <p>This method typically does not modify the map in any way,
-     * instead allowing the map to modify itself as directed by its
-     * return value.  It <i>is</i> permitted for this method to modify
-     * the map directly, but if it does so, it <i>must</i> return
-     * <tt>false</tt> (indicating that the map should not attempt any
-     * further modification).  The effects of returning <tt>true</tt>
-     * after modifying the map from within this method are unspecified.
+     * 此方法的重写几乎不会返回false，因为这样就和普通的map一样了，最老的元素不会被删除。
      *
-     * <p>This implementation merely returns <tt>false</tt> (so that this
-     * map acts like a normal map - the eldest element is never removed).
-     *
-     * @param    eldest The least recently inserted entry in the map, or if
-     *           this is an access-ordered map, the least recently accessed
-     *           entry.  This is the entry that will be removed it this
-     *           method returns <tt>true</tt>.  If the map was empty prior
-     *           to the <tt>put</tt> or <tt>putAll</tt> invocation resulting
-     *           in this invocation, this will be the entry that was just
-     *           inserted; in other words, if the map contains a single
-     *           entry, the eldest entry is also the newest.
-     * @return   <tt>true</tt> if the eldest entry should be removed
-     *           from the map; <tt>false</tt> if it should be retained.
+     * @param    eldest 即最早被插入到map的元素，如果这是一个access-ordered模式的map，那就是最不经常被访问的元素。
+     *                  如果这个方法返回true，那么eldest就会被移除。如果map在put或putAll方法执行前是空的，那么执行此方法时传入
+     *                  的eldest就是刚刚被放入的那个元素，它即是最新的也是最老的。
+     * @return   如果最老的元素需要被移除则返回true，否则返回false。
      */
     protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
         return false;
     }
 
     /**
-     * Returns a {@link Set} view of the keys contained in this map.
-     * The set is backed by the map, so changes to the map are
-     * reflected in the set, and vice-versa.  If the map is modified
-     * while an iteration over the set is in progress (except through
-     * the iterator's own <tt>remove</tt> operation), the results of
-     * the iteration are undefined.  The set supports element removal,
-     * which removes the corresponding mapping from the map, via the
-     * <tt>Iterator.remove</tt>, <tt>Set.remove</tt>,
-     * <tt>removeAll</tt>, <tt>retainAll</tt>, and <tt>clear</tt>
-     * operations.  It does not support the <tt>add</tt> or <tt>addAll</tt>
-     * operations.
-     * Its {@link Spliterator} typically provides faster sequential
-     * performance but much poorer parallel performance than that of
-     * {@code HashMap}.
-     *
-     * @return a set view of the keys contained in this map
+     * 返回包含所有key的集合，规则和HashMap中的相同。
+     * 要注意的是，和HashMap不同，它的Spliterator分割迭代器是用Spliterators工具类直接创建的，而不是内部类。
      */
     public Set<K> keySet() {
         Set<K> ks = keySet;
@@ -563,22 +365,8 @@ public class LinkedHashMap<K,V>
     }
 
     /**
-     * Returns a {@link Collection} view of the values contained in this map.
-     * The collection is backed by the map, so changes to the map are
-     * reflected in the collection, and vice-versa.  If the map is
-     * modified while an iteration over the collection is in progress
-     * (except through the iterator's own <tt>remove</tt> operation),
-     * the results of the iteration are undefined.  The collection
-     * supports element removal, which removes the corresponding
-     * mapping from the map, via the <tt>Iterator.remove</tt>,
-     * <tt>Collection.remove</tt>, <tt>removeAll</tt>,
-     * <tt>retainAll</tt> and <tt>clear</tt> operations.  It does not
-     * support the <tt>add</tt> or <tt>addAll</tt> operations.
-     * Its {@link Spliterator} typically provides faster sequential
-     * performance but much poorer parallel performance than that of
-     * {@code HashMap}.
-     *
-     * @return a view of the values contained in this map
+     * 返回包含所有value的集合，规则和HashMap中的相同
+     * 要注意的是，和HashMap不同，它的Spliterator分割迭代器是用Spliterators工具类直接创建的，而不是内部类。
      */
     public Collection<V> values() {
         Collection<V> vs = values;
@@ -612,23 +400,8 @@ public class LinkedHashMap<K,V>
     }
 
     /**
-     * Returns a {@link Set} view of the mappings contained in this map.
-     * The set is backed by the map, so changes to the map are
-     * reflected in the set, and vice-versa.  If the map is modified
-     * while an iteration over the set is in progress (except through
-     * the iterator's own <tt>remove</tt> operation, or through the
-     * <tt>setValue</tt> operation on a map entry returned by the
-     * iterator) the results of the iteration are undefined.  The set
-     * supports element removal, which removes the corresponding
-     * mapping from the map, via the <tt>Iterator.remove</tt>,
-     * <tt>Set.remove</tt>, <tt>removeAll</tt>, <tt>retainAll</tt> and
-     * <tt>clear</tt> operations.  It does not support the
-     * <tt>add</tt> or <tt>addAll</tt> operations.
-     * Its {@link Spliterator} typically provides faster sequential
-     * performance but much poorer parallel performance than that of
-     * {@code HashMap}.
-     *
-     * @return a set view of the mappings contained in this map
+     * 返回包含所有Entry的集合，规则和HashMap中的相同
+     * 要注意的是，和HashMap不同，它的Spliterator分割迭代器是用Spliterators工具类直接创建的，而不是内部类。
      */
     public Set<Map.Entry<K,V>> entrySet() {
         Set<Map.Entry<K,V>> es;
@@ -674,7 +447,7 @@ public class LinkedHashMap<K,V>
         }
     }
 
-    // Map overrides
+    // Map接口方法的重写，主要是修改了迭代方式
 
     public void forEach(BiConsumer<? super K, ? super V> action) {
         if (action == null)
@@ -696,7 +469,7 @@ public class LinkedHashMap<K,V>
             throw new ConcurrentModificationException();
     }
 
-    // Iterators
+    // 自定义迭代器，供视图方法使用，同样是为了更改迭代的方式。
 
     abstract class LinkedHashIterator {
         LinkedHashMap.Entry<K,V> next;
