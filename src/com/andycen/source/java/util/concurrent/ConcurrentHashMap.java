@@ -342,7 +342,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
     private transient volatile long baseCount;
 
     /**
-     * 数组初始化和扩容控制。当它是负值的时候，代表数组正在被初始化或扩容：-1表示初始化，其他的-(1 + 活跃的扩容线程数)表示扩容。
+     * 数组初始化和扩容控制。当它是负值的时候，代表数组正在被初始化或扩容：-1表示初始化，其他的负数表示扩容。
      * 当数组还是null时，它持有初始化数组长度，以便在创建数组时使用，或者默认情况下是0。
      * 在初始化后，它持有下次扩容的目标容量值。
      */
@@ -2772,13 +2772,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
                 }
                 if (stack != null) // 尝试恢复刚才中断的遍历（如果有的话）
                     recoverState(n);
-                else if ((index = i + baseSize) >= n) // 没有待出栈的遍历，index直接往后跳baseSize长度，为什么跳这么多？
-                    // 还是那个定理，扩容后一个bin的位置要么在原地，要么往后推移原数组长度的距离。
-                    // 如果推移之后大于等于当前数组长度了，分两种情况：
-                    // 1.如果当前在最基础的那个数组中遍历，那么这个条件是恒成立的，直接自增baseIndex和index即可，即取下一个bin。
-                    // 2.如果当前在转发节点调度过去的数组中遍历，说明这里面的两个bin已经遍历完了，下一个循环就会将其弹出
-                    // 而如果i + baseSize < n，这种情况当且仅当转发调度的数组中从低bin跳到高bin。
-                    // ps: 如果中间多扩容了几次，baseSize跨度仍然是初始长度，可能要多跳几次才能找到高位bin
+                else if ((index = i + baseSize) >= n)
                     index = ++baseIndex;
             }
         }
@@ -2791,10 +2785,8 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
             pushState(64)     64->32->16->null  null
             recoverState(64)  32->16->null      64->null
             pushState(64)     64->32->16->null  null
-            recoverState(64)  16->null          64->32->null
-            (有可能一次出栈多个)
-            为什么重复利用spare，因为可以想象，如果遍历到中间发生了扩容，则每前进一个bin都会碰到一个转发节点，如果不重复利用，
-            最终TableStack的数量会相当恐怖
+            为什么重复利用spare，因为可以想象，如果遍历到中间发生了扩容，则每前进一个bin都有很大概率碰到一个转发节点，
+            这种重复利用的机制让我们在下次需要用到同一个数组时不用再重复创建TableStack对象了。
             ...
          */
 
@@ -2822,6 +2814,8 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
          */
         private void recoverState(int n) {
             TableStack<K,V> s; int len;
+            // 先将index指向高位bin，如果高位bin还没被搜寻过，则先不出栈。
+            // 高位bin指扩容时被分到(原下标+原数组长度)的那部分节点所在的bin。
             while ((s = stack) != null && (index += (len = s.length)) >= n) { // s = stack = 64->32->16->null
                 n = len; // n = 64
                 index = s.index;
@@ -2832,7 +2826,7 @@ public class ConcurrentHashMap<K,V> extends AbstractMap<K,V>
                 stack = next; // stack = 32->16->null
                 spare = s; // spare = 64 -> null
             }
-            // 栈已空，并且这栈里的最后一个数组也处理完了，继续基础数组中的下一个bin
+            // 栈已空，继续基础数组中的下一个bin
             if (s == null && (index += baseSize) >= n)
                 index = ++baseIndex;
         }
