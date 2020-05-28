@@ -141,19 +141,19 @@ public
 class Thread implements Runnable {
     /* Make sure registerNatives is the first thing <clinit> does. */
     private static native void registerNatives();
-    static {
+    static { // 注册系统资源
         registerNatives();
     }
 
-    private volatile String name;
-    private int            priority;
+    private volatile String name; // 线程名
+    private int            priority; // 优先级
     private Thread         threadQ;
     private long           eetop;
 
     /* Whether or not to single_step this thread. */
     private boolean     single_step;
 
-    /* Whether or not the thread is a daemon thread. */
+    /* Whether or not the thread is a daemon(守护线程) thread. */
     private boolean     daemon = false;
 
     /* JVM state */
@@ -243,6 +243,7 @@ class Thread implements Runnable {
 
     /**
      * The minimum priority that a thread can have.
+     * 最低优先级
      */
     public final static int MIN_PRIORITY = 1;
 
