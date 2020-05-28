@@ -367,7 +367,7 @@ public class TreeMap<K,V>
 
     /**
      * 返回大于指定key的最小的那个key对应的entry。
-     * 如果给定的key大于map中最大的key，则返回null
+     * 如果给定的key大于等于map中最大的key，则返回null
      */
     final Entry<K,V> getHigherEntry(K key) {
         Entry<K,V> p = root;
@@ -397,7 +397,7 @@ public class TreeMap<K,V>
 
     /**
      * 返回小于指定key的最大的那个key对应的entry。
-     * 如果给定的key小于map中最小的key，则返回null
+     * 如果给定的key小于等于map中最小的key，则返回null
      */
     final Entry<K,V> getLowerEntry(K key) {
         Entry<K,V> p = root;
